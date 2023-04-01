@@ -10,151 +10,184 @@ Write your code in this editor and press "Run" button to compile and execute it.
 #include <stdlib.h>
 #include <string.h>
 
-struct Aluno {
-  int matricula;
-  char nome[50];
-  char celular[15];
-  float peso;
-  float altura;
+struct Aluno
+{
+  char nome[20];
+  float nota;
+  char status;
 };
 
-void inicializarAlunos (struct Aluno *alunos, int tamanho);
-void incluirAluno (struct Aluno *alunos, int *tamanho);
-void excluirAluno (struct Aluno *alunos, int *tamanho);
-void imprimirAlunos (struct Aluno *alunos, int tamanho);
-void buscarAluno (struct Aluno *alunos, int tamanho);
-void imprimirDadosAluno (struct Aluno aluno);
+struct Aluno listaChamada[40];
+int numAlunos = 0;
 
-void main () {
-  struct Aluno alunos[500];
-  int tamanho = 0;
-  int opcao;
+void incluirAluno(char status)
+{
+  char name[20];
+  float nota = 0.0;
 
-  inicializarAlunos (alunos, 500);
+  if (numAlunos >= 40)
+  {
+    printf("Não é possível incluir mais alunos na lista.\n");
+    return;
+  }
 
-  do {
-      printf ("\nCadastro de Alunos\n");
-      printf ("-------------------\n");
-      printf ("1 - Incluir aluno\n");
-      printf ("2 - Excluir aluno\n");
-      printf ("3 - Imprimir relação de alunos\n");
-      printf ("4 - Buscar aluno por nome\n");
-      printf ("5 - Sair\n");
-      printf ("Escolha uma opção: ");
-      scanf ("%d", &opcao);
+  printf("Qual o nome do aluno? \n");
+  scanf("%c", &name[20]);
+  strcpy(listaChamada[numAlunos].nome, name);
+  printf("Qual a nota do aluno? \n");
+  scanf("%f", &nota);
+  listaChamada[numAlunos].nota = nota;
+  listaChamada[numAlunos].status = status;
+  numAlunos++;
+}
 
-      switch (opcao) {
-	case 1:
-	  incluirAluno (alunos, &tamanho);
-	  break;
-	case 2:
-	  excluirAluno (alunos, &tamanho);
-	  break;
-	case 3:
-	  imprimirAlunos (alunos, tamanho);
-	  break;
-	case 4:
-	  buscarAluno (alunos, tamanho);
-	  break;
-	case 5:
-	  printf ("\nEncerrando o programa...\n");
-	  break;
-	default:
-	  printf ("\nOpção invalida! Tente novamente.\n");
-	  break;
-	}
+void excluirAluno(int indice)
+{
+  if (indice < 0 || indice >= numAlunos)
+  {
+    printf("Índice inválido.\n");
+    return;
+  }
+
+  int i;
+  for (i = indice; i < numAlunos - 1; i++)
+  {
+    listaChamada[i] = listaChamada[i + 1];
+  }
+  numAlunos--;
+}
+
+void ordenarPorNota()
+{
+  int i, j;
+  struct Aluno temp;
+  for (i = 0; i < numAlunos - 1; i++)
+  {
+    for (j = 0; j < numAlunos - i - 1; j++)
+    {
+      if (listaChamada[j].nota < listaChamada[j + 1].nota)
+      {
+        temp = listaChamada[j];
+        listaChamada[j] = listaChamada[j + 1];
+        listaChamada[j + 1] = temp;
+      }
+    }
+  }
+}
+
+void imprimirAlunos()
+{
+  int i;
+  printf("Relação de alunos:\n");
+  printf("Nome\t\tNota\tStatus\n");
+  for (i = 0; i < numAlunos; i++)
+  {
+    printf("%-20s %-5.2f %c\n", listaChamada[i].nome, listaChamada[i].nota, listaChamada[i].status);
+  }
+}
+
+void imprimirAlunosAtivos()
+{
+  int i;
+  printf("Relação de alunos ativos:\n");
+  printf("Nome\t\tNota\n");
+  for (i = 0; i < numAlunos; i++)
+  {
+    if (listaChamada[i].status == 'A')
+    {
+      printf("%-20s %-5.2f\n", listaChamada[i].nome, listaChamada[i].nota);
+    }
+  }
+}
+
+void ordenarLista(struct Aluno lista[], int tamanho)
+{
+  int i, j;
+  struct Aluno temp;
+
+  for (i = 0; i < tamanho - 1; i++)
+  {
+    for (j = i + 1; j < tamanho; j++)
+    {
+      if (lista[i].nota < lista[j].nota)
+      {
+        temp = lista[i];
+        lista[i] = lista[j];
+        lista[j] = temp;
+      }
+    }
+  }
+}
+
+void imprimirLista(struct Aluno lista[], int tamanho)
+{
+  int i, totalAtivos = 0;
+
+  printf("\nRelação total de alunos:\n");
+  printf("Nome\t\tNota\tStatus\n");
+  for (i = 0; i < tamanho; i++)
+  {
+    printf("%s\t%.2f\t%c\n", lista[i].nome, lista[i].nota, lista[i].status);
+    if (lista[i].status == 'A')
+    {
+      totalAtivos++;
+    }
+  }
+  printf("Total de alunos ativos: %d\n", totalAtivos);
+}
+
+void inicializarLista(struct Aluno lista[], int tamanho)
+{
+  int i;
+  for (i = 0; i < tamanho; i++)
+  {
+    strcpy(lista[i].nome, "");
+    lista[i].nota = 0.0;
+    strcpy(lista[i].status, "");
+  }
+}
+
+void main()
+{
+  int opcao, tamanho = 0;
+  struct Aluno lista[40];
+  char statusEnum[2][10]; 
+  strcpy(statusEnum[0], "ATIVO");
+  strcpy(statusEnum[1], "EXCLUIDO"); 
+
+  inicializarLista(lista, 40);
+
+  do
+  {
+    printf("\nEscolha uma opção:\n");
+    printf("1 - Incluir aluno\n");
+    printf("2 - Excluir aluno\n");
+    printf("3 - Ordenar lista por nota decrescente\n");
+    printf("4 - Imprimir relação total de alunos e de alunos ativos\n");
+    printf("0 - Sair\n");
+    scanf("%d", &opcao);
+
+    switch (opcao)
+    {
+    case 1:
+      incluirAluno(statusEnum[0]);
+      break;
+    case 2:
+      excluirAluno(lista, &tamanho, statusEnum[1]);
+      break;
+    case 3:
+      ordenarLista(lista, tamanho);
+      printf("\nLista ordenada com sucesso!\n");
+      break;
+    case 4:
+      imprimirLista(lista, tamanho);
+      break;
+    case 0:
+      printf("\nEncerrando programa...\n");
+      break;
+    default:
+      printf("\nOpção inválida, tente novamente.\n");
+      break;
+    }
   } while (opcao != 5);
-}
-
-void inicializarAlunos (struct Aluno *alunos, int tamanho) {
-  int i;
-  for (i = 0; i < tamanho; i++) {
-      alunos[i].matricula = 0;
-      strcpy (alunos[i].nome, "");
-      strcpy (alunos[i].celular, "");
-      alunos[i].peso = 0.0;
-      alunos[i].altura = 0.0;
-    }
-}
-
-void incluirAluno (struct Aluno *alunos, int *tamanho) {
-  if (*tamanho == 500) {
-      printf("\nNão foi possivel incluir mais alunos! O limite foi atingido.\n");
-      return;
-  }
-
-  printf ("\nInclusão de novo aluno:\n");
-
-  printf ("Matricula: ");
-  scanf ("%d", &alunos[*tamanho].matricula);
-  printf ("Nome: ");
-  scanf (" %[^\n]s", alunos[*tamanho].nome);
-  printf ("Celular: ");
-  scanf (" %[^\n]s", alunos[*tamanho].celular);
-  printf ("Peso (em kg): ");
-  scanf ("%f", &alunos[*tamanho].peso);
-  printf ("Altura (em metros): ");
-  scanf ("%f", &alunos[*tamanho].altura);
-
-  (*tamanho)++;
-
-  printf ("\nAluno incluido com sucesso!\n");
-}
-
-void excluirAluno (struct Aluno *alunos, int *tamanho) {
-  int matricula, i, j;
-  printf ("\nExclusão de aluno:\n");
-  printf ("Digite a matricula do aluno a ser excluido: ");
-  scanf ("%d", &matricula);
-  for (i = 0; i < *tamanho; i++) {
-      if (alunos[i].matricula == matricula) {
-	  for (j = i; j < (*tamanho) - 1; j++) {
-	      alunos[j] = alunos[j + 1];
-	  }
-
-	  (*tamanho)--;
-
-	  printf ("\nAluno excluido com sucesso!\n");
-	  return;
-	}
-  }
-
-  printf ("\nMatricula %d não encontrada!\n", matricula);
-}
-
-void imprimirAlunos (struct Aluno *alunos, int tamanho) {
-  int i;
-  printf ("\nRelação de alunos:\n");
-  printf("Matricula  Nome                  Celular            Peso    Altura\n");
-  for (i = 0; i < tamanho; i++) {
-      printf ("%-10d %-20s %-18s %-7.2f %.2f\n", alunos[i].matricula,
-	      alunos[i].nome, alunos[i].celular, alunos[i].peso,
-	      alunos[i].altura);
-    }
-}
-
-
-void buscarAluno (struct Aluno *alunos, int tamanho) {
-  char nome[50];
-  int i;
-  printf ("\nBusca de aluno:\n");
-  printf ("Digite o nome do aluno: ");
-  scanf (" %[^\n]s", nome);
-  for (i = 0; i < tamanho; i++) {
-      if (strcmp (alunos[i].nome, nome) == 0) {
-	  imprimirDadosAluno (alunos[i]);
-	  return;
-	}
-  }
-
-  printf ("\nAluno %s não encontrado!\n", nome);
-}
-
-void imprimirDadosAluno (struct Aluno aluno) {
-  printf ("\nDados do aluno:\n");
-  printf ("Matricula: %d\n", aluno.matricula);
-  printf ("Nome: %s\n", aluno.nome);
-  printf ("Celular: %s\n", aluno.celular);
-  printf ("Peso: %.2f kg\n", aluno.peso);
-  printf ("Altura: %.2f m\n", aluno.altura);
 }
